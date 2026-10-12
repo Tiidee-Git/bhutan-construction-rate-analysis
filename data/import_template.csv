@@ -1,0 +1,2 @@
+item_code,description,unit,discipline,bsr_edition,lmc_edition,source_name,source_page,town,verification_date,overhead_pct,profit_pct,component_type,component_name,component_unit,coefficient,unit_rate
+CIV-REPLACE-001,Replace with verified official item,m3,civil,BSR 2026 Civil,LMC 2026 Civil,MoIT BSR/LMC,PDF page number,Reference town,2026-10-12,10,0,Material,Cement,bag,0,0

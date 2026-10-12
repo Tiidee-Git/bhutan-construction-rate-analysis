@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bhutan Construction Rate Analysis Tool</title>
+<style>
+:root{--ink:#15263a;--muted:#637187;--line:#dce4ec;--paper:#fff;--bg:#f3f6fa;--brand:#153d5b;--accent:#e4a83b;--green:#187a59}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#102b43,#1e5872);color:white;padding:26px max(20px,calc((100vw - 1180px)/2));}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:#f4c96c;font-weight:800}h1{font-size:clamp(24px,4vw,34px);margin:5px 0}header p{margin:0;color:#d6e4ed}
+main{max-width:1180px;margin:24px auto;padding:0 18px 40px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:18px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 4px 18px #17324b08;margin-bottom:18px}
+h2{font-size:17px;margin:0 0 16px}.sub{font-size:12px;color:var(--muted);margin-top:-10px;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:750;color:#526176;margin-bottom:5px}
+input,select{width:100%;padding:11px 12px;border:1px solid #ccd6e1;border-radius:8px;background:#fff;color:var(--ink);font:inherit;min-width:0}
+input:focus,select:focus{outline:2px solid #a9d1e3;border-color:#4987a4}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wide{grid-column:1/-1}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;padding:4px 9px;border-radius:99px;background:#fff3d6;color:#7d5206;font-size:11px;font-weight:800}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}
+table{width:100%;border-collapse:collapse;min-width:600px}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid #e8edf2;font-size:13px}th{background:#f6f8fb;color:#607086;font-size:11px;text-transform:uppercase;letter-spacing:.04em}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}tr:last-child td{border-bottom:0}
+button{border:0;border-radius:8px;padding:11px 14px;font:700 13px inherit;cursor:pointer;font-weight:750}.primary{background:var(--brand);color:white}.secondary{background:#edf2f6;color:#23384b}.gold{background:var(--accent);color:#34240a}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{padding:13px;background:#f6f9fb;border-radius:10px}.kpi span{display:block;color:var(--muted);font-size:11px;font-weight:700}.kpi strong{display:block;font-size:19px;margin-top:3px;font-variant-numeric:tabular-nums}
+.total{background:#123d57;color:white;border-radius:12px;padding:18px;margin-top:14px}.total span{font-size:12px;color:#c7dce8}.total strong{display:block;font-size:27px;margin:2px 0}.total small{color:#d3e3eb}
+.provenance{font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.provenance b{color:#34475b}.notice{font-size:12px;color:#7a5414;background:#fff6e4;border:1px solid #f0ddb2;padding:12px;border-radius:9px;margin-bottom:16px}
+.empty{text-align:center;color:var(--muted);padding:28px}.status{font-size:12px;color:var(--muted);margin-top:10px}
+@media(max-width:850px){main{grid-template-columns:1fr}.side{order:2}}@media(max-width:500px){.fields,.provenance{grid-template-columns:1fr}.card{padding:15px}header{padding:22px 18px}.kpis{grid-template-columns:1fr 1fr}}
+@media print{body{background:white;font-size:11px}header{background:white!important;color:#111;padding:0 0 14px}header p,.kicker{color:#444}main{display:block;max-width:none;margin:0;padding:0}.card{box-shadow:none;border:1px solid #bbb;break-inside:avoid;margin-bottom:10px;padding:12px}.no-print,button,.notice{display:none!important}.side{display:block}.total{background:#eee;color:#111;border:1px solid #aaa}.total span,.total small{color:#333}table{min-width:0}th,td{padding:6px}.sub{margin-top:0}}
+</style>
+</head>
+<body>
+<header><div class="kicker">Construction estimating • Bhutan</div><h1>Rate Analysis Tool</h1><p>BSR item coefficients, cost build-up and project quantity estimate</p></header>
+<main>
+<section>
+<div class="notice"><b>Demo dataset:</b> Sample codes and prices are illustrative only, not verified official MOIT BSR/LMC data. Import verified rates before relying on estimates.</div>
+<div class="card">
+<div class="row"><h2>1. Select BSR item</h2><span class="pill">Nu. • BTN</span></div>
+<div class="fields">
+<div class="wide"><label for="search">Search item code or description</label><input id="search" placeholder="Type a code or keyword…"></div>
+<div class="wide"><label for="item">BSR item</label><select id="item"><option value="">Loading items…</option></select></div>
+<div><label for="qty">Project quantity</label><input id="qty" type="number" min="0" step="any" value="1"></div>
+<div><label for="town">Project town / cost index note</label><input id="town" placeholder="e.g. Thimphu"></div>
+<div><label for="overhead">Overhead (%)</label><input id="overhead" type="number" min="0" max="100" step=".1" value="5"></div>
+<div><label for="profit">Profit (%)</label><input id="profit" type="number" min="0" max="100" step=".1" value="10"></div>
+</div>
+<div id="source" class="provenance"></div>
+</div>
+<div class="card">
+<div class="row"><h2>2. Coefficient breakdown</h2><span id="unitBadge" class="pill">Per unit</span></div>
+<p class="sub">Amounts are calculated as coefficient × unit rate for one BSR unit.</p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Component</th><th>Unit</th><th class="num">Coefficient</th><th class="num">Rate (Nu.)</th><th class="num">Amount (Nu.)</th></tr></thead><tbody id="components"><tr><td colspan="6" class="empty">Select an item to view its breakdown.</td></tr></tbody></table></div>
+</div>
+</section>
+<aside class="side">
+<div class="card"><h2>3. Rate summary</h2>
+<div class="kpis"><div class="kpi"><span>Materials</span><strong id="materials">Nu. 0.00</strong></div><div class="kpi"><span>Labour</span><strong id="labor">Nu. 0.00</strong></div><div class="kpi"><span>Equipment</span><strong id="equipment">Nu. 0.00</strong></div><div class="kpi"><span>Direct unit cost</span><strong id="direct">Nu. 0.00</strong></div></div>
+<div class="table-wrap" style="margin-top:14px"><table style="min-width:0"><tbody>
+<tr><td>Overhead</td><td class="num" id="ohAmount">Nu. 0.00</td></tr>
+<tr><td>Profit</td><td class="num" id="profitAmount">Nu. 0.00</td></tr>
+<tr><td>Final unit rate</td><td class="num" id="unitRate">Nu. 0.00</td></tr>
+</tbody></table></div>
+<div class="total"><span>Estimated project total</span><strong id="grand">Nu. 0.00</strong><small id="totalCaption">1.00 unit × final unit rate</small></div>
+<div class="actions no-print" style="margin-top:16px"><button class="primary" id="export">Export CSV</button><button class="gold" id="print">Print / Save PDF</button></div>
+<div class="status" id="status">Connecting to local database…</div>
+</div>
+<div class="card no-print"><h2>AI draft for a missing item</h2>
+<p class="sub">Creates a provisional analysis only. It does not add the result to the official database.</p>
+<div class="fields">
+<div class="wide"><label for="aiDesc">Work item description</label><input id="aiDesc" placeholder="Describe the work item and specification"></div>
+<div><label for="aiUnit">Unit</label><input id="aiUnit" placeholder="m³, m², point, m"></div>
+<div><label for="aiDiscipline">Discipline</label><select id="aiDiscipline"><option value="civil">Civil</option><option value="electrical">Electrical</option></select></div>
+<div class="wide"><label for="aiTown">Project town</label><input id="aiTown" placeholder="e.g. Mongar"></div>
+<div class="wide"><label for="aiContext">Specification / assumptions</label><input id="aiContext" placeholder="Include size, grade, installation conditions…"></div>
+</div>
+<button class="primary" id="generateAI" style="margin-top:12px">Generate provisional draft</button>
+<div id="aiResult" class="status" aria-live="polite"></div>
+</div>
+<div class="card"><h2>Calculation method</h2><p class="sub" style="margin:0">Direct cost = sum of component coefficient × rate. Overhead is applied to direct cost. Profit is applied to direct cost plus overhead. Project total = final unit rate × quantity.</p></div>
+</aside>
+</main>
+<script>
+const $=id=>document.getElementById(id);let allItems=[],current=null,calc={};
+const money=n=>'Nu. '+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const n2=n=>Number(n||0).toFixed(2);
+async function loadItems(q=''){try{const r=await fetch('/api/items?q='+encodeURIComponent(q));if(!r.ok)throw Error('API request failed');allItems=await r.json();const sel=$('item');sel.innerHTML='<option value="">Choose an item code…</option>'+allItems.map(x=>`<option value="${esc(x.item_code)}">${esc(x.item_code)} — ${esc(x.description)}</option>`).join('');if(current&&allItems.some(x=>x.item_code===current.item_code))sel.value=current.item_code;$('status').textContent=`${allItems.length} item(s) loaded from SQLite.`}catch(e){$('status').textContent='Cannot connect to backend. Start the app using the README instructions.'}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function selectItem(code){if(!code){current=null;render();return}try{const r=await fetch('/api/items/'+encodeURIComponent(code));if(!r.ok)throw Error('Not found');current=await r.json();$('overhead').value=current.overhead_pct??5;$('profit').value=current.profit_pct??10;$('town').value=current.town||'';$('unitBadge').textContent='Per '+current.unit;render()}catch(e){$('status').textContent='Could not load selected item.'}}
+function render(){if(!current){$('components').innerHTML='<tr><td colspan="6" class="empty">Select an item to view its breakdown.</td></tr>';$('source').innerHTML='';return}
+const sums={Material:0,Labor:0,Equipment:0};let rows='';for(const c of current.components||[]){const amount=Number(c.coefficient)*Number(c.unit_rate);sums[c.component_type]=(sums[c.component_type]||0)+amount;rows+=`<tr><td>${esc(c.component_type)}</td><td>${esc(c.component_name)}</td><td>${esc(c.unit)}</td><td class="num">${n2(c.coefficient)}</td><td class="num">${money(c.unit_rate)}</td><td class="num">${money(amount)}</td></tr>`}
+$('components').innerHTML=rows||'<tr><td colspan="6" class="empty">No components saved for this item.</td></tr>';
+$('source').innerHTML=`<div><b>Source:</b> ${esc(current.source_name||'Not recorded')}</div><div><b>Edition:</b> ${esc(current.bsr_edition||'Not recorded')}</div><div><b>Reference town:</b> ${esc(current.town||'Not recorded')}</div><div><b>Verified:</b> ${esc(current.verification_date||'Not recorded')}</div>`;
+const direct=sums.Material+sums.Labor+sums.Equipment,oh=direct*Math.max(0,Number($('overhead').value)||0)/100,profit=(direct+oh)*Math.max(0,Number($('profit').value)||0)/100,unit=direct+oh+profit,qty=Math.max(0,Number($('qty').value)||0);
+calc={sums,direct,oh,profit,unit,qty,total:unit*qty};
+$('materials').textContent=money(sums.Material);$('labor').textContent=money(sums.Labor);$('equipment').textContent=money(sums.Equipment);$('direct').textContent=money(direct);$('ohAmount').textContent=money(oh);$('profitAmount').textContent=money(profit);$('unitRate').textContent=money(unit);$('grand').textContent=money(unit*qty);$('totalCaption').textContent=`${n2(qty)} ${current.unit} × ${money(unit)}`;
+}
+
+$('generateAI').addEventListener('click',async()=>{
+ const description=$('aiDesc').value.trim(),unit=$('aiUnit').value.trim();
+ if(!description||!unit){$('aiResult').textContent='Enter the work item description and unit first.';return}
+ $('generateAI').disabled=true;$('aiResult').textContent='Generating draft…';
+ try{
+  const r=await fetch('/api/ai/draft-rate',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({description,unit,discipline:$('aiDiscipline').value,town:$('aiTown').value,project_context:$('aiContext').value,known_rates:[]})});
+  const data=await r.json();if(!r.ok)throw Error(data.detail||'AI request failed');
+  const comp=(data.components||[]).map(c=>`<tr><td>${esc(c.component_type)}</td><td>${esc(c.component_name)}</td><td>${esc(c.unit||'')}</td><td class="num">${n2(c.coefficient)}</td><td class="num">${money(c.unit_rate)}</td><td class="num">${money(c.amount??Number(c.coefficient)*Number(c.unit_rate))}</td></tr>`).join('');
+  $('aiResult').innerHTML=`<div class="notice"><b>${esc(data.status||'AI DRAFT — NOT OFFICIAL')}</b><br>AI estimates are assumptions, not official BSR/LMC rates. Engineer review and local price verification required.</div>
+   <p><b>Estimated unit rate:</b> ${money(data.estimated_unit_rate)}</p><div class="table-wrap"><table><thead><tr><th>Type</th><th>Component</th><th>Unit</th><th class="num">Coefficient</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>${comp}</tbody></table></div>
+   <p><b>Assumptions:</b> ${esc((data.assumptions||[]).join('; ')||'See AI output')}</p>
+   <p><b>Missing information:</b> ${esc((data.missing_information||[]).join('; ')||'Review quantities and rates')}</p>
+   <p><b>Review checklist:</b> ${esc((data.review_checklist||[]).join('; ')||'Verify all quantities, rates, and specifications')}</p>`;
+ }catch(e){$('aiResult').textContent=e.message+' Configure AI_API_KEY on the backend if AI is needed.'}
+ finally{$('generateAI').disabled=false}
+});
+
+$('item').addEventListener('change',e=>selectItem(e.target.value));
+$('search').addEventListener('input',e=>loadItems(e.target.value));
+['qty','overhead','profit','town'].forEach(id=>$(id).addEventListener('input',render));
+$('print').addEventListener('click',()=>window.print());
+$('export').addEventListener('click',()=>{
+if(!current){alert('Select a BSR item first.');return}
+const lines=[['Bhutan Construction Rate Analysis Tool'],['Item code',current.item_code],['Description',current.description],['Unit',current.unit],['Project quantity',n2(calc.qty)],['Source',current.source_name||'Not recorded'],['BSR/LMC edition',current.bsr_edition||'Not recorded'],['Reference town',current.town||'Not recorded'],['Verification date',current.verification_date||'Not recorded'],[],['Type','Component','Unit','Coefficient','Unit rate (Nu.)','Amount (Nu.)']];
+for(const c of current.components||[])lines.push([c.component_type,c.component_name,c.unit,n2(c.coefficient),n2(c.unit_rate),n2(Number(c.coefficient)*Number(c.unit_rate))]);
+lines.push([],['Materials',n2(calc.sums.Material)],['Labour',n2(calc.sums.Labor)],['Equipment',n2(calc.sums.Equipment)],['Direct unit cost',n2(calc.direct)],['Overhead %',$('overhead').value],['Overhead amount',n2(calc.oh)],['Profit %',$('profit').value],['Profit amount',n2(calc.profit)],['Final unit rate (Nu.)',n2(calc.unit)],['Estimated project total (Nu.)',n2(calc.total)]);
+const csv=lines.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`rate-analysis-${current.item_code.replace(/[^a-z0-9_-]/gi,'_')}.csv`;a.click();URL.revokeObjectURL(url)});
+loadItems();
+</script>
+</body>
+</html>
